@@ -10,7 +10,7 @@ function element_rhs(u_i, u_left, D, M, h)
     return r_i
 end
 
-function global_rhs(u, D, M, h)
+function global_rhs(u, D, M, h) #gibt das matrix produkt von u_t= M_invertiert D u sind N vektoren nebeneinander
     N = size(u, 1)
     r = zeros(size(u))
     for i in 1:N
@@ -20,6 +20,23 @@ function global_rhs(u, D, M, h)
     end
     return r
 end
+function matrix(D, M, h, p,N)
+    p=1
+    A= zeros(N*(p+1),N*(p+1))   #Meine große Matrix
+    for i in 1:N
+
+   for j in 1:p+1 # Ich will einen kleine matrix die an einer stelle eine eins hat mit der ich dann sozusgaen den richtigen punkt rauskriege mal dir die scheisse nocheinmal aus
+        einserMatrix= zeros(N,p+1)
+     einserMatrix[i,j]=1
+    kleineMatrix= global_rhs(einserMatrix, D, M, h)
+    
+    Spalte=kleineMAtrix[j]
+    A[:,p]= Spalte
+    p=p+1
+   end
+   p=p+1
+    end
+end #Flachmachfunkjtion prpogrammieren all u sind 
 
 function to_physical_element(x_l, x_r, xi)
     return (x_r + x_l) / 2.0 + xi * (x_r - x_l) / 2.0
@@ -38,7 +55,7 @@ function interpolate_global(f, N, nodes, domain)
         x_r += h
     end
     return u
-end
+end # gibt n Vektoren nebeneinander aus
 
 function rk3_step(u, dt, rhs)
     u1 = u + dt * rhs(u)
@@ -50,6 +67,7 @@ end
 function main()
     p = 3
     N = 20
+    Anzahl= N*(p+1)
     domain = (0.0, 2π)
     T = 1.0
     h = (domain[2] - domain[1]) / N
@@ -67,7 +85,10 @@ function main()
         u = rk3_step(u, current_dt, rhs)
         t += current_dt
     end
+     Matrix= matrix(D, M, h, p,N)
+    display(Matrix)
     return u
+
 end
 
 function plot_solution(u, nodes, domain)
