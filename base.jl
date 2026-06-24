@@ -20,9 +20,37 @@ function global_rhs(u, D, M, h) #gibt das matrix produkt von u_t= M_invertiert D
     end
     return r
 end
+
+function matrixTOvector(A)
+    nZeile=size(A, 1)   # Anzahl Zeilen
+    nSpalte=size(A,2) 
+    Vektor=zeros(nZeile*nSpalte)
+    k=1
+    for i in 1: nZeile
+        for j in 1:nSpalte
+Vektor[k]=A[i,j]
+k=k+1
+        end
+
+    end
+    return Vektor
+end
+function vectorTOmatrix(V,AnzahlSpalten)
+    A=zeros(div(length(V), AnzahlSpalten),AnzahlSpalten)
+    k=1
+    for i in 1:div(length(V), AnzahlSpalten)
+        for j in 1:AnzahlSpalten
+            A[i,j]=V[k]
+            k=k+1
+        end
+    end
+return A
+end
+
 function matrix(D, M, h, p,N)
-    p=1
+    
     A= zeros(N*(p+1),N*(p+1))   #Meine große Matrix
+    m=1
     for i in 1:N
 
    for j in 1:p+1 # Ich will einen kleine matrix die an einer stelle eine eins hat mit der ich dann sozusgaen den richtigen punkt rauskriege mal dir die scheisse nocheinmal aus
@@ -30,12 +58,16 @@ function matrix(D, M, h, p,N)
      einserMatrix[i,j]=1
     kleineMatrix= global_rhs(einserMatrix, D, M, h)
     
-    Spalte=kleineMAtrix[j]
-    A[:,p]= Spalte
-    p=p+1
+    
+    Spalte= matrixTOvector(kleineMatrix)
+    
+    A[:,m]= Spalte
+    m=m+1
+
    end
-   p=p+1
-    end
+   
+    end 
+    return A
 end #Flachmachfunkjtion prpogrammieren all u sind 
 
 function to_physical_element(x_l, x_r, xi)
@@ -66,7 +98,7 @@ end
 
 function main()
     p = 3
-    N = 20
+    N = 3
     Anzahl= N*(p+1)
     domain = (0.0, 2π)
     T = 1.0
@@ -87,6 +119,10 @@ function main()
     end
      Matrix= matrix(D, M, h, p,N)
     display(Matrix)
+    display(u)
+    display(matrixTOvector(u))
+    display(vectorTOmatrix([1, 2, 3, 4, 5, 6, 7, 8],2))
+
     return u
 
 end
